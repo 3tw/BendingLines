@@ -1,4 +1,4 @@
-let container, camera, renderer, scene
+let container, camera, renderer, scene, line, curve, geometry, material, x2 = 0
 
 function init() {
 
@@ -19,7 +19,6 @@ function init() {
 }
 
 function update() {
-
 }
 
 // render
@@ -36,12 +35,14 @@ function createRenderer() {
 }
 
 function render() {
+updateLines();
+
   renderer.render(scene, camera);
 }
 
 function createCamera() {
   camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 500);
-  camera.position.set(0, 0, 100);
+  camera.position.set(0, 0, 200);
   camera.lookAt(0, 0, 0);
 
   scene = new THREE.Scene();
@@ -54,40 +55,34 @@ function createLights() {
 }
 
 function createLines() {
-  let material = new THREE.LineDashedMaterial({
-    color: 0xffdc00,
-    linewidth: 5,
-    scale: 1,
-    dashSize: 3,
-    gapSize: 1,
-  });
-
-  let points = []
-  let lines = [] // array of THREE.line instances
-  let counter = 0
-  let x1 = -50;
+  let x1 = 0;
   let y1 = -25;
-  let y2 = 25;
+  let y2 = 0;
+  let y3 = 25;
 
-  for (let i = 0; i < 11; i++) {
-    points.push(new THREE.Vector2(x1, y1));
-    points.push(new THREE.Vector2(x1, y2));
-    
+  geometry = new THREE.Geometry()
+  geometry.vertices.push(
+    new THREE.Vector3(x1, y1, 0),
+    new THREE.Vector3(x1, y2, 0),
+    new THREE.Vector3(x1, y3, 0),
+  )
 
-    let vectorPoints = [points[counter], points[counter + 1]];
-    let geometry = new THREE.BufferGeometry().setFromPoints(vectorPoints);
-    lines.push(new THREE.Line(geometry, material))
+  material = new THREE.LineBasicMaterial({ color: 0xffdc00 });
+  curvedLine = new THREE.Line(geometry, material);
+  scene.add(curvedLine);
 
-    x1 += 10;
-    counter += 2;
-    vectorPoints = [];
-    
+  curvedLine.curve = geometry.vertices; // link vertices to this curvedLine
 
-    scene.add(lines[i])
-  }
-  console.log(lines)
-  console.log(lines[0])
-  console.log(points)
+}
+
+function updateLines() {
+  x2 += 0.05
+
+  // update x of 2nd vector
+  curvedLine.curve[1].x = x2
+  // update changed vertices
+  curvedLine.geometry.verticesNeedUpdate = true;
+
 }
 
 // adjust canvas to resized window
@@ -97,7 +92,7 @@ function onWindowResize() {
   renderer.setSize(container.clientWidth, container.clientHeight)
 }
 
-window.addEventListener("resize", onWindowResize)
+window.addEventListener("resize", onWindowResize);
 
 
 init();
