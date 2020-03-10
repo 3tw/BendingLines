@@ -1,2 +1,2 @@
 # BlendingLines
-My first attempt at animating with Three.js.
+Playing around with Three.js
